@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, Leaf, Droplets, Sprout, Package, Download } from "lucide-react";
+import { generatePDF } from "@/utils/pdfGenerator";
 
 const Results = () => {
   const { id } = useParams();
@@ -47,8 +48,20 @@ const Results = () => {
     }
   };
 
-  const handleDownloadReport = () => {
-    toast.success("Report download feature coming soon!");
+  const handleDownloadReport = async () => {
+    if (!analysis || !recommendation) {
+      toast.error("No data available to download");
+      return;
+    }
+
+    try {
+      toast.info("Generating PDF report...");
+      await generatePDF(analysis, recommendation);
+      toast.success("Report downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate report");
+    }
   };
 
   if (isLoading) {
