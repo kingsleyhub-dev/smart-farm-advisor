@@ -46,7 +46,14 @@ const Auth = () => {
 
       if (data.session) {
         toast.success("Welcome back!");
-        navigate("/dashboard");
+        // Check if admin
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.session.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        navigate(roleData ? "/admin" : "/dashboard");
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
