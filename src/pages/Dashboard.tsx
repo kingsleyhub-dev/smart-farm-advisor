@@ -175,7 +175,10 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 active:scale-[0.98]">
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-all duration-300 active:scale-[0.98]"
+            onClick={() => navigate("/my-farms")}
+          >
             <CardContent className="p-6 text-center">
               <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
                 <MapPin className="w-7 h-7 text-accent" />

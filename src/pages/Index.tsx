@@ -228,7 +228,7 @@ const Index = () => {
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 Smart Farm Input Advisor. Precision farming powered by AI.
+              Smart Farm Input Advisor. Precision farming powered by AI.
             </p>
           </div>
         </div>
