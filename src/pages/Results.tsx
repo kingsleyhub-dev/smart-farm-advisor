@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { ArrowLeft, Leaf, Droplets, Sprout, Package, Download, Beaker } from "lucide-react";
+import { ArrowLeft, Leaf, Droplets, Sprout, Package, Download, Beaker, Calendar } from "lucide-react";
 import { generatePDF } from "@/utils/pdfGenerator";
+import { getHarvestTimeline } from "@/utils/harvestTimeline";
 
 const NPK_VALUE_MAP: Record<string, number> = { Low: 25, Medium: 55, High: 85 };
 
@@ -182,6 +183,7 @@ const Results = () => {
             { icon: Sprout, title: "Seed Recommendation", text: recommendation.seed_advice, accent: "border-l-primary" },
             { icon: Package, title: "Fertilizer Advice", text: recommendation.fertilizer_advice, accent: "border-l-accent" },
             { icon: Droplets, title: "Irrigation Schedule", text: recommendation.irrigation_advice, accent: "border-l-secondary" },
+            { icon: Calendar, title: "Harvest Timeline", text: getHarvestTimeline(analysis.crop_type, analysis.created_at).harvestAdvice, accent: "border-l-primary" },
           ].map(({ icon: Icon, title, text, accent }, i) => (
             <Card key={title} className={`shadow-card border-l-4 ${accent} animate-fade-in`} style={{ animationDelay: `${i * 0.1}s` }}>
               <CardHeader className="pb-3">

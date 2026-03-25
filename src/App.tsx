@@ -8,6 +8,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Advisor from "./pages/Advisor";
 import Results from "./pages/Results";
+import Admin from "./pages/Admin";
+import MyFarms from "./pages/MyFarms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/advisor" element={<Advisor />} />
           <Route path="/results/:id" element={<Results />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/my-farms" element={<MyFarms />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
