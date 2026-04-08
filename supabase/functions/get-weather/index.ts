@@ -12,17 +12,11 @@ serve(async (req) => {
   }
 
   try {
-    const { city } = await req.json();
-    if (!city || typeof city !== "string" || city.length > 100) {
-      return new Response(
-        JSON.stringify({ error: "Invalid city parameter" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const body = await req.json();
+    const { city, lat, lon } = body;
 
     const WEATHER_API_KEY = Deno.env.get("WEATHER_API_KEY");
     if (!WEATHER_API_KEY) {
-      // Return mock data when no API key configured
       return new Response(
         JSON.stringify({
           temperature: 24,
@@ -30,17 +24,29 @@ serve(async (req) => {
           windSpeed: 12,
           condition: "Partly Cloudy",
           icon: "⛅",
-          location: city.replace(",KE", ""),
+          location: city?.replace(",KE", "") || "Unknown",
           forecast: { avgTemp: 23, avgHumidity: 68, totalRainMm: 8 },
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const encodedCity = encodeURIComponent(city);
-    const url = `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${encodedCity}&days=3&aqi=no`;
+    // Use lat,lon if provided, otherwise fall back to city
+    let query: string;
+    if (typeof lat === "number" && typeof lon === "number") {
+      query = `${lat},${lon}`;
+    } else if (city && typeof city === "string" && city.length <= 100) {
+      query = city;
+    } else {
+      return new Response(
+        JSON.stringify({ error: "Provide lat/lon or a valid city" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}&days=3&aqi=no`;
     const resp = await fetch(url);
-    
+
     if (!resp.ok) {
       const errBody = await resp.text();
       throw new Error(`WeatherAPI error [${resp.status}]: ${errBody}`);
@@ -49,10 +55,8 @@ serve(async (req) => {
     const w = await resp.json();
     const current = w.current;
     const forecastDays = w.forecast?.forecastday || [];
-    
-    let totalRain = 0;
-    let totalTemp = 0;
-    let totalHumidity = 0;
+
+    let totalRain = 0, totalTemp = 0, totalHumidity = 0;
     forecastDays.forEach((d: any) => {
       totalRain += d.day.totalprecip_mm || 0;
       totalTemp += d.day.avgtemp_c || 0;

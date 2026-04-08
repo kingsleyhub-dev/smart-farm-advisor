@@ -14,11 +14,26 @@ export interface WeatherData {
   };
 }
 
-export const fetchWeather = async (city: string): Promise<WeatherData> => {
+/** Try to get the user's coordinates via the browser Geolocation API. */
+const getCoordinates = (): Promise<{ lat: number; lon: number } | null> =>
+  new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      () => resolve(null),
+      { timeout: 5000, maximumAge: 300000 }
+    );
+  });
+
+export const fetchWeather = async (fallbackCity: string): Promise<WeatherData> => {
   try {
-    const { data, error } = await supabase.functions.invoke("get-weather", {
-      body: { city: `${city},KE` },
-    });
+    const coords = await getCoordinates();
+
+    const body = coords
+      ? { lat: coords.lat, lon: coords.lon }
+      : { city: `${fallbackCity},KE` };
+
+    const { data, error } = await supabase.functions.invoke("get-weather", { body });
 
     if (error) throw error;
     return data as WeatherData;
@@ -30,7 +45,7 @@ export const fetchWeather = async (city: string): Promise<WeatherData> => {
       windSpeed: 12,
       condition: "Partly Cloudy",
       icon: "⛅",
-      location: city,
+      location: fallbackCity,
     };
   }
 };
@@ -60,7 +75,7 @@ export const getWeatherAdvice = (weather: WeatherData): string => {
     parts.push("Strong winds expected — avoid spraying pesticides or foliar fertilizers. Secure crop stakes.");
   }
 
-  return parts.length > 0 
-    ? parts.join(" ") 
+  return parts.length > 0
+    ? parts.join(" ")
     : "Weather conditions are favorable for standard farming operations.";
 };
